@@ -76,7 +76,10 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
     echo " [*] Initializing KernelSU (ReSukiSU) Setup"
     echo "==========================================="
     echo "[*] Downloading and running ReSukiSU remote setup script..."
-    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+    # 强制清理可能残留的旧版 SuSFS 痕迹
+    rm -rf fs/susfs* include/linux/susfs* drivers/kernelsu
+    # 携带 --susfs 参数，让脚本自动拉取并应用最新版 SuSFS 补丁
+    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s -- --susfs
     echo "[+] KernelSU setup finished."
 fi
 
