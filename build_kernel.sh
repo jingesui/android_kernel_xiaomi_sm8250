@@ -263,7 +263,9 @@ build_target() {
             -e NAMESPACES \
             -e SYSVIPC \
             -e PID_NS \
-            -e IPC_NS
+            -e IPC_NS \
+            -e DEVTMPFS \
+            -e DEVTMPFS_MOUNT
     fi
 
     # We always need to re-evaluate dependencies because BBG is injected unconditionally
