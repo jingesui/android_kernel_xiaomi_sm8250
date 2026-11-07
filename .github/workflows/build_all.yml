@@ -9,7 +9,7 @@ permissions:
 jobs:
   build-matrix:
     name: Build ${{ matrix.device }} | ${{ matrix.ksu && 'KSU' || 'NoKSU' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -19,7 +19,6 @@ jobs:
           - true
 
     steps:
-      # Build from the feature branch so the patched build_kernel.sh is used.
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
