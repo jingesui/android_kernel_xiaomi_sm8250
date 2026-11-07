@@ -265,7 +265,7 @@ build_target() {
             -e PID_NS \
             -e IPC_NS \
             -e DEVTMPFS \
-            -e DEVTMPFS_MOUNT
+            -d DEVTMPFS_MOUNT
     fi
 
     # We always need to re-evaluate dependencies because BBG is injected unconditionally
