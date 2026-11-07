@@ -76,7 +76,7 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
     echo " [*] Initializing KernelSU (ReSukiSU) Setup"
     echo "==========================================="
     echo "[*] Pinning ReSukiSU to known-good commit 74668639 (matches working device kernel)..."
-    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/74668639/kernel/setup.sh" | bash
+    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/74668639/kernel/setup.sh" | bash -s 74668639
     echo "[+] KernelSU setup finished."
 fi
 
