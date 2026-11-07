@@ -53,11 +53,11 @@ jobs:
           wget -q https://github.com/ZyCromerZ/Clang/releases/download/16.0.6-20260807-release/Clang-16.0.6-20260807.tar.gz
           tar -zxvf Clang-16.0.6-20260807.tar.gz
 
-      - name: Verify build_kernel.sh has namespace patch
+      - name: Verify build_kernel.sh has DroidSpaces patch
         run: |
           echo "--- build_kernel.sh provenance ---"
           git log --oneline -1
-          grep -n 'Namespace configurations' build_kernel.sh || { echo 'ERROR: namespace patch missing'; exit 1; }
+          grep -n 'DroidSpaces configurations' build_kernel.sh || { echo 'ERROR: DroidSpaces patch missing'; exit 1; }
 
       - name: Run Build Script
         run: |
