@@ -256,27 +256,77 @@ build_target() {
             -e REKERNEL_NETWORK
     fi
 
-    # 5. Namespace configurations (alioth only)
+    # 5. DroidSpaces configurations (alioth only)
     if [ "$DEVICE_NAME" == "alioth" ]; then
-        echo "[*] Injecting namespace configurations for ${DEVICE_NAME}..."
+        echo "[*] Injecting DroidSpaces namespace and container configs for ${DEVICE_NAME}..."
         scripts/config --file "${OUT_DIR}/.config" \
-            -e NAMESPACES \
+            -e SYSCTL \
             -e SYSVIPC \
+            -e POSIX_MQUEUE \
+            -e NAMESPACES \
             -e PID_NS \
+            -e UTS_NS \
             -e IPC_NS \
+            -e SECCOMP \
+            -e SECCOMP_FILTER \
+            -e CGROUPS \
+            -e CGROUP_DEVICE \
+            -e CGROUP_SCHED \
+            -e FAIR_GROUP_SCHED \
+            -e CGROUP_FREEZER \
+            -e CGROUP_NET_PRIO \
+            -e MEMCG \
+            -e MEMCG_SWAP \
+            -e CFS_BANDWIDTH \
+            -e CGROUP_PIDS \
+            -e CGROUP_CPUACCT \
             -e DEVTMPFS \
-            -d DEVTMPFS_MOUNT
+            -d DEVTMPFS_MOUNT \
+            -e OVERLAY_FS \
+            -e TMPFS_POSIX_ACL \
+            -e TMPFS_XATTR \
+            -e FW_LOADER \
+            -e FW_LOADER_USER_HELPER \
+            -e FW_LOADER_COMPRESS \
+            -e NET_NS \
+            -e VETH \
+            -e BRIDGE \
+            -e NETFILTER \
+            -e BRIDGE_NETFILTER \
+            -e NETFILTER_ADVANCED \
+            -e NF_CONNTRACK \
+            -e IP_NF_IPTABLES \
+            -e IP_NF_FILTER \
+            -e NF_NAT \
+            -e NF_TABLES \
+            -e IP_NF_TARGET_MASQUERADE \
+            -e NETFILTER_XT_TARGET_MASQUERADE \
+            -e NETFILTER_XT_TARGET_TCPMSS \
+            -e NETFILTER_XT_MATCH_ADDRTYPE \
+            -e NF_CONNTRACK_NETLINK \
+            -e NF_NAT_REDIRECT \
+            -e IP_ADVANCED_ROUTER \
+            -e IP_MULTIPLE_TABLES \
+            -e IPV6 \
+            -e IPV6_MULTIPLE_TABLES \
+            -e IP6_NF_IPTABLES \
+            -e IP6_NF_FILTER \
+            -e IP6_NF_MANGLE \
+            -e IP6_NF_NAT \
+            -e IP6_NF_TARGET_MASQUERADE \
+            -d ANDROID_PARANOID_NETWORK \
+            -e USER_NS
     fi
 
     # We always need to re-evaluate dependencies because BBG is injected unconditionally
     echo "[*] Updating config (make olddefconfig)..."
     make "${MAKE_OPTS[@]}" olddefconfig
 
-    # Verify namespace configs survived olddefconfig (alioth only)
+    # Verify DroidSpaces configs survived olddefconfig (alioth only)
     if [ "$DEVICE_NAME" == "alioth" ]; then
-        echo "[*] Verifying namespace configs in ${OUT_DIR}/.config..."
+        echo "[*] Verifying critical configs in ${OUT_DIR}/.config..."
         local NS_FAIL=0
-        for cfg in CONFIG_NAMESPACES CONFIG_SYSVIPC CONFIG_PID_NS CONFIG_IPC_NS; do
+        for cfg in CONFIG_NAMESPACES CONFIG_SYSVIPC CONFIG_PID_NS CONFIG_IPC_NS CONFIG_UTS_NS CONFIG_USER_NS CONFIG_NET_NS CONFIG_DEVTMPFS CONFIG_OVERLAY_FS CONFIG_CGROUPS; do
             if grep -qx "${cfg}=y" "${OUT_DIR}/.config"; then
                 echo "    [+] ${cfg}=y"
             else
@@ -284,8 +334,17 @@ build_target() {
                 NS_FAIL=1
             fi
         done
+        
+        # ANDROID_PARANOID_NETWORK must be disabled
+        if grep -qx "CONFIG_ANDROID_PARANOID_NETWORK=y" "${OUT_DIR}/.config"; then
+            echo "    [!] CONFIG_ANDROID_PARANOID_NETWORK is still y"
+            NS_FAIL=1
+        else
+            echo "    [+] CONFIG_ANDROID_PARANOID_NETWORK is not set"
+        fi
+
         if [ "$NS_FAIL" -ne 0 ]; then
-            echo "[!] Error: required namespace configs missing for ${DEVICE_NAME} (${OS_TYPE}). Aborting build."
+            echo "[!] Error: required configs missing or incorrect for ${DEVICE_NAME} (${OS_TYPE}). Aborting build."
             exit 1
         fi
     fi
