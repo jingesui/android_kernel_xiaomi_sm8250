@@ -75,13 +75,8 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
     echo "==========================================="
     echo " [*] Initializing KernelSU (ReSukiSU) Setup"
     echo "==========================================="
-    echo "[*] Downloading and applying latest official SuSFS patch for 4.19..."
-    curl -LSs "https://gitlab.com/simonpunk/susfs4ksu/-/raw/kernel-4.19/kernel_patches/50_add_susfs_in_kernel-4.19.patch" -o susfs.patch
-    patch -p1 < susfs.patch || { echo "[-] Failed to apply SuSFS patch"; exit 1; }
-    rm -f susfs.patch
-
-    echo "[*] Downloading and running latest ReSukiSU (BakaSU) remote setup script..."
-    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+    echo "[*] Pinning ReSukiSU to known-good commit 74668639 (matches working device kernel)..."
+    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/74668639/kernel/setup.sh" | bash
     echo "[+] KernelSU setup finished."
 fi
 
