@@ -75,11 +75,13 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
     echo "==========================================="
     echo " [*] Initializing KernelSU (ReSukiSU) Setup"
     echo "==========================================="
-    echo "[*] Downloading and running ReSukiSU remote setup script..."
-    # 强制清理可能残留的旧版 SuSFS 痕迹
-    rm -rf fs/susfs* include/linux/susfs* drivers/kernelsu
-    # 携带 --susfs 参数，让脚本自动拉取并应用最新版 SuSFS 补丁
-    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s -- --susfs
+    echo "[*] Downloading and applying latest official SuSFS patch for 4.19..."
+    curl -LSs "https://gitlab.com/simonpunk/susfs4ksu/-/raw/kernel-4.19/kernel_patches/50_add_susfs_in_kernel-4.19.patch" -o susfs.patch
+    patch -p1 < susfs.patch || { echo "[-] Failed to apply SuSFS patch"; exit 1; }
+    rm -f susfs.patch
+
+    echo "[*] Downloading and running latest ReSukiSU (BakaSU) remote setup script..."
+    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
     echo "[+] KernelSU setup finished."
 fi
 
