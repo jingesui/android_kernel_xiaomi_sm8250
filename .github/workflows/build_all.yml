@@ -66,6 +66,7 @@ jobs:
           if [ "${{ matrix.ksu }}" = "true" ]; then
             ARGS="$ARGS ksu"
           fi
+          ARGS="$ARGS miui"
           echo "Executing command: ./build_kernel.sh $ARGS"
           ./build_kernel.sh $ARGS
 
@@ -74,9 +75,6 @@ jobs:
         with:
           name: APTKernel-${{ matrix.device }}-${{ matrix.ksu && 'KSU' || 'NoKSU' }}-${{ github.run_id }}
           path: |
-            artifacts/aosp/Image
-            artifacts/aosp/dtb
-            artifacts/aosp/dtbo.img
             artifacts/miui/Image
             artifacts/miui/dtb
             artifacts/miui/dtbo.img
