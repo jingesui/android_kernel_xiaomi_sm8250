@@ -259,9 +259,37 @@ build_target() {
             -e REKERNEL_NETWORK
     fi
 
+    # 5. Namespace configurations (alioth only)
+    if [ "$DEVICE_NAME" == "alioth" ]; then
+        echo "[*] Injecting namespace configurations for ${DEVICE_NAME}..."
+        scripts/config --file "${OUT_DIR}/.config" \
+            -e NAMESPACES \
+            -e SYSVIPC \
+            -e PID_NS \
+            -e IPC_NS
+    fi
+
     # We always need to re-evaluate dependencies because BBG is injected unconditionally
     echo "[*] Updating config (make olddefconfig)..."
     make "${MAKE_OPTS[@]}" olddefconfig
+
+    # Verify namespace configs survived olddefconfig (alioth only)
+    if [ "$DEVICE_NAME" == "alioth" ]; then
+        echo "[*] Verifying namespace configs in ${OUT_DIR}/.config..."
+        local NS_FAIL=0
+        for cfg in CONFIG_NAMESPACES CONFIG_SYSVIPC CONFIG_PID_NS CONFIG_IPC_NS; do
+            if grep -qx "${cfg}=y" "${OUT_DIR}/.config"; then
+                echo "    [+] ${cfg}=y"
+            else
+                echo "    [!] ${cfg} is NOT set in final .config"
+                NS_FAIL=1
+            fi
+        done
+        if [ "$NS_FAIL" -ne 0 ]; then
+            echo "[!] Error: required namespace configs missing for ${DEVICE_NAME} (${OS_TYPE}). Aborting build."
+            exit 1
+        fi
+    fi
 
     # ----------------------------------------------------
     # Compilation
